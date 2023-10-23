@@ -6,6 +6,9 @@ type HARProps = {
   name: string;
 };
 
+// const mimeTypes = ["application/javascript", "text/javascript", "text/html", "text/css", "text/xml"];
+const scrubedMimeTypes = ["application/javascript", "text/javascript"];
+
 const defaultWordList = [
   "state",
   "shdf",
@@ -79,7 +82,26 @@ function buildRegex(word: string) {
   ];
 }
 
+function removeContentForMimeTypes(input: string) {
+  const harJSON = JSON.parse(input);
+
+  const entries = harJSON.log.entries;
+  if (!entries) {
+    throw new Error("failed to find entries in HAR file");
+  }
+
+  for (const entry of entries) {
+    const response = entry.response;
+    if (response && scrubedMimeTypes.includes(response.content.mimeType)) {
+      response.content.text = `[${response.content.mimeType} redacted]`;
+    }
+  }
+
+  return JSON.stringify(harJSON);
+}
+
 function sanitize(input: string, setSanitizedHar: (value: string) => void) {
+  input = removeContentForMimeTypes(input);
   //   trim the list of words we are looking for down to the ones actually in the HAR file
   const redactList = defaultWordList.filter((val) => input.includes(val));
 
@@ -91,6 +113,7 @@ function sanitize(input: string, setSanitizedHar: (value: string) => void) {
       input = input.replace(pattern.regex, pattern.replacement);
     }
   }
+
   setSanitizedHar(input);
 }
 
