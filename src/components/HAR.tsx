@@ -32,6 +32,7 @@ const defaultWordList = [
   "SAMLRequest",
   "SAMLResponse",
   "CF_Authorization",
+  "vses2",
 ];
 
 function buildRegex(word: string) {
