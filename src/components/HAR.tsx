@@ -1,7 +1,9 @@
-// import { useState } from "react";
+import { useState } from "react";
+import { DownloadHar } from "./DownloadHar";
 
 type HARProps = {
   input: string;
+  name: string;
 };
 
 const defaultWordList = [
@@ -33,73 +35,71 @@ const defaultWordList = [
 ];
 
 function buildRegex(word: string) {
-  return {
-    single_use: {
-      // user:pass URL: whatever[://]user:[capture][@]whatever
-      regex: /(:\/\/[\w+-.%!*()`~']*?:)([\w+-.%!*()`~']+)(@)/,
-      replacement: "$1[password redacted]$3",
+  return [
+    {
+      // [full word]=[capture][& | ", | "\s | "} | ;]
+      regex: new RegExp(`([\\s";,&?]+${word}=)([\\w+-_/=#|.%&:!*()\`~'"]+?)(&|\\\\",|",|"\\s|"}}|;){1}`, "g"),
+      replacement: `$1[${word} redacted]$3`,
     },
-    word_patterns: [
-      {
-        // [full word]=[capture][& | ", | "\s | "} | ;]
-        regex: new RegExp(`([\\s";,&?]+${word}=)([\\w+-_/=#|.%&:!*()\`~'"]+?)(&|",|"\\s|"}}|;){1}`, "g"),
-        replacement: `$1[${word} redacted]$3`,
-      },
-      // Set up this way in case "value" isn't directly after "name", but
-      // excludes {} to prevent grabbing the next object
-      // {
-      //    "name": "[word]",
-      //    "something": "not wanted",
-      //    "value": "[capture]["]
-      // }
-      // {
-      //   "name": "not wanted",
-      //   "value": "unwanted capture"
-      {
-        regex: new RegExp(
-          `("name": "${word}",[\\s\\w+:"-\\%!*()\`~'.#]*?"value": ")([\\w+-_:&\\+=#~/$()\\.\\,\\*\\!|%"\\s;]+?)("[\\s,}}]+){1}`,
-          "g"
-        ),
-        replacement: `$1[${word} redacted]$3`,
-      },
-      //   // Same as above, but backwards in case "name" comes after "value"
-      //   // {
-      //   //   "name": "not wanted/captured"
-      //   //   "value": "unwanted capture"
-      //   // }
-      //   // {
-      //   //    "value": "[capture]["],
-      //   //    "something": "not wanted",
-      //   //    "name": "[word]"
-      //   // }
-      {
-        regex: new RegExp(
-          `("value": ")([\\w+-_:&\\+=#$~/()\\.\\,\\*\\!|%"\\s;]+)({1})([\\s\\w+:"-\\%!*()\`~'#.]*"name": "${word}"){{1}}`,
-          "g"
-        ),
-        replacement: `$1[${word} redacted]$3$4`,
-      },
-    ],
-  };
+    // Set up this way in case "value" isn't directly after "name", but
+    // excludes {} to prevent grabbing the next object
+    // {
+    //    "name": "[word]",
+    //    "something": "not wanted",
+    //    "value": "[capture]["]
+    // }
+    // {
+    //   "name": "not wanted",
+    //   "value": "unwanted capture"
+    {
+      regex: new RegExp(
+        `("name": "${word}",[\\s\\w+:"-\\%!*()\`~'.#]*?"value": ")([\\w+-_:&\\+=#~/$()\\.\\,\\*\\!|%"\\s;]+?)("[\\s,}}]+){1}`,
+        "g"
+      ),
+      replacement: `$1[${word} redacted]$3`,
+    },
+    // Same as above, but backwards in case "name" comes after "value"
+    // {
+    //   "name": "not wanted/captured"
+    //   "value": "unwanted capture"
+    // }
+    // {
+    //    "value": "[capture]["],
+    //    "something": "not wanted",
+    //    "name": "[word]"
+    // }
+    {
+      regex: new RegExp(
+        `("value": ")([\\w+-_:&+=#$~/()\\\\.\\,*!|%"\\s;]+)("[,\\s}}]+)([\\s\\w+:"-\\\\%!*\`()~'#.]*"name": "${word}")`,
+        "g"
+      ),
+      replacement: `$1[${word} redacted]$3$4`,
+    },
+  ];
 }
 
-function sanitize(input: string) {
-  console.log("sanitize clicked");
+function sanitize(input: string, setSanitizedHar: (value: string) => void) {
   //   trim the list of words we are looking for down to the ones actually in the HAR file
   const redactList = defaultWordList.filter((val) => input.includes(val));
-  console.log(redactList);
+
+  // build list of regexes needed to actually scrub the file
   const scrubList = redactList.map((word) => buildRegex(word));
+
   for (const scrub of scrubList) {
-    for (const pattern of scrub.word_patterns) {
+    for (const pattern of scrub) {
       input = input.replace(pattern.regex, pattern.replacement);
     }
   }
-  console.log(input);
-  console.log("done");
+  setSanitizedHar(input);
 }
 
-export const HAR: React.FC<HARProps> = ({ input = "" }) => {
-  //   const [sanitizedHar, setSanitizedHar] = useState<string>("");
+export const HAR: React.FC<HARProps> = ({ input = "", name = "" }) => {
+  const [sanitizedHar, setSanitizedHar] = useState<string>("");
 
-  return <div>{input ? <button onClick={() => sanitize(input)}>Sanitize</button> : <p>no har</p>}</div>;
+  return (
+    <>
+      <div>{input ? <button onClick={() => sanitize(input, setSanitizedHar)}>Sanitize</button> : <p>no har</p>}</div>
+      {sanitizedHar && <DownloadHar har={sanitizedHar} name={name} />}
+    </>
+  );
 };

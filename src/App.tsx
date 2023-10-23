@@ -3,6 +3,7 @@ import "./App.css";
 import { HAR } from "./components/HAR";
 
 function App() {
+  const [harName, setHarName] = useState<string>("");
   const [har, setHar] = useState<string>("");
   const [harError, setHarError] = useState<string>("");
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,6 +21,7 @@ function App() {
           if (fileContents && (typeof fileContents === "string" || fileContents instanceof String)) {
             JSON.parse(fileContents as string);
             setHar(fileContents as string);
+            setHarName(selectedFile.name);
             setHarError("");
             return;
           }
@@ -37,10 +39,10 @@ function App() {
     <>
       <h1>Sanitize your HAR file</h1>
       <div className="card">
-        <input type="file" onChange={handleFileChange} />
+        <input type="file" onChange={handleFileChange} accept=".har" />
         {harError && <p>{harError}</p>}
       </div>
-      {!!har && <HAR input={har}></HAR>}
+      {!!har && <HAR input={har} name={harName}></HAR>}
     </>
   );
 }
