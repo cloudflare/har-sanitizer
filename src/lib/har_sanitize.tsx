@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // const mimeTypes = ["application/javascript", "text/javascript", "text/html", "text/css", "text/xml"];
 export type PossibleScrubItems = {
-  headers: unknown[];
-  cookies: unknown[];
-  queryArgs: unknown[];
-  mimeTypes: unknown[];
+  headers: string[];
+  cookies: string[];
+  queryArgs: string[];
+  mimeTypes: string[];
 };
 
-const scrubedMimeTypes = ["application/javascript", "text/javascript"];
+const defaultMimeTypesList = ["application/javascript", "text/javascript"];
 
 const defaultWordList = [
   "state",
@@ -37,6 +37,8 @@ const defaultWordList = [
   "SAMLResponse",
   "vses2",
 ];
+
+export const defaultScrubItems = [...defaultMimeTypesList, ...defaultWordList];
 
 // The default list of regexes that aren't word dependent
 // Uses double list so it matches format of word regex
@@ -86,7 +88,7 @@ function buildRegex(word: string) {
   ];
 }
 
-function removeContentForMimeTypes(input: string) {
+function removeContentForMimeTypes(input: string, scrubList: string[]) {
   const harJSON = JSON.parse(input);
 
   const entries = harJSON.log.entries;
@@ -96,7 +98,7 @@ function removeContentForMimeTypes(input: string) {
 
   for (const entry of entries) {
     const response = entry.response;
-    if (response && scrubedMimeTypes.includes(response.content.mimeType)) {
+    if (response && scrubList.includes(response.content.mimeType)) {
       response.content.text = `[${response.content.mimeType} redacted]`;
     }
   }
@@ -105,7 +107,12 @@ function removeContentForMimeTypes(input: string) {
 }
 
 export function getHarInfo(input: string): PossibleScrubItems {
-  const output = { headers: new Set(), queryArgs: new Set(), cookies: new Set(), mimeTypes: new Set() };
+  const output = {
+    headers: new Set<string>(),
+    queryArgs: new Set<string>(),
+    cookies: new Set<string>(),
+    mimeTypes: new Set<string>(),
+  };
   const harJSON = JSON.parse(input);
 
   const entries = harJSON.log.entries;
@@ -126,19 +133,19 @@ export function getHarInfo(input: string): PossibleScrubItems {
   }
 
   return {
-    headers: [...output.headers],
-    queryArgs: [...output.queryArgs],
-    cookies: [...output.cookies],
-    mimeTypes: [...output.mimeTypes],
+    headers: [...output.headers].sort(),
+    queryArgs: [...output.queryArgs].sort(),
+    cookies: [...output.cookies].sort(),
+    mimeTypes: [...output.mimeTypes].sort(),
   };
 }
 
-export function sanitize(input: string) {
+export function sanitize(input: string, scrubWords?: string[], scrubMimetypes?: string[]) {
   // Remove specific mime responses first
-  input = removeContentForMimeTypes(input);
+  input = removeContentForMimeTypes(input, scrubMimetypes || defaultMimeTypesList);
 
   // trim the list of words we are looking for down to the ones actually in the HAR file
-  const wordList = defaultWordList.filter((val) => input.includes(val));
+  const wordList = (scrubWords || defaultScrubItems).filter((val) => input.includes(val));
 
   // build list of regexes needed to actually scrub the file
   const wordSpecificScrubList = wordList.map((word) => buildRegex(word));
