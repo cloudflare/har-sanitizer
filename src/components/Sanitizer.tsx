@@ -1,17 +1,16 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import { useState } from "react";
 import { DownloadHar } from "./DownloadHar";
 import { Button } from "../_ui/Button";
 import { sanitize, getHarInfo } from "../lib/har_sanitize";
 
-type HARProps = {
+type SanitizerProps = {
   input: string;
   name: string;
 };
 
-export const HAR: React.FC<HARProps> = ({ input = "", name = "" }) => {
+export const Sanitizer: React.FC<SanitizerProps> = ({ input = "", name = "" }) => {
   const [sanitizedHar, setSanitizedHar] = useState<string>("");
-  const [harData, setHarData] = useState<any>({});
+  const [harData, setHarData] = useState<PossibleScrubItems>();
 
   const sanitizeHar = () => {
     setSanitizedHar(sanitize(input));

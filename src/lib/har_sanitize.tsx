@@ -1,5 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // const mimeTypes = ["application/javascript", "text/javascript", "text/html", "text/css", "text/xml"];
+export type PossibleScrubItems = {
+  headers: unknown[];
+  cookies: unknown[];
+  queryArgs: unknown[];
+  mimeTypes: unknown[];
+};
+
 const scrubedMimeTypes = ["application/javascript", "text/javascript"];
 
 const defaultWordList = [
@@ -97,7 +104,7 @@ function removeContentForMimeTypes(input: string) {
   return JSON.stringify(harJSON, null, 2);
 }
 
-export function getHarInfo(input: string) {
+export function getHarInfo(input: string): PossibleScrubItems {
   const output = { headers: new Set(), queryArgs: new Set(), cookies: new Set(), mimeTypes: new Set() };
   const harJSON = JSON.parse(input);
 
