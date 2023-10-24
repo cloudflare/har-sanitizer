@@ -1,5 +1,4 @@
 import { ChangeEvent, useState } from "react";
-import "./App.css";
 import { HAR } from "./components/HAR";
 
 function App() {
@@ -18,7 +17,10 @@ function App() {
       reader.onload = (e) => {
         try {
           const fileContents = e?.target?.result;
-          if (fileContents && (typeof fileContents === "string" || fileContents instanceof String)) {
+          if (
+            fileContents &&
+            (typeof fileContents === "string" || fileContents instanceof String)
+          ) {
             JSON.parse(fileContents as string);
             setHar(fileContents as string);
             setHarName(selectedFile.name);
@@ -37,8 +39,8 @@ function App() {
   };
   return (
     <>
-      <h1>Sanitize your HAR file</h1>
-      <div className="card">
+      <h1 className="text-5xl font-bold">Sanitize your HAR file</h1>
+      <div className="p-8">
         <input type="file" onChange={handleFileChange} accept=".har" />
         {harError && <p>{harError}</p>}
       </div>
