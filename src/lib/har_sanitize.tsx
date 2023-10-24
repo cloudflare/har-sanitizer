@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // const mimeTypes = ["application/javascript", "text/javascript", "text/html", "text/css", "text/xml"];
 const scrubedMimeTypes = ["application/javascript", "text/javascript"];
 
@@ -46,10 +47,6 @@ function buildRegex(word: string) {
   return [
     {
       // [full word]=[capture]
-      // {
-      //   "name": "[word]",
-      //   "value": "[capture]"
-      // }
       regex: new RegExp(`([\\s";,&?]+${word}=)([\\w+-_/=#|.%&:!*()\`~'"]+?)(&|\\\\",|",|"\\s|"}}|;){1}`, "g"),
       replacement: `$1[${word} redacted]$3`,
     },
@@ -98,6 +95,35 @@ function removeContentForMimeTypes(input: string) {
   }
 
   return JSON.stringify(harJSON, null, 2);
+}
+
+export function getHarInfo(input: string) {
+  const output = { headers: new Set(), queryArgs: new Set(), cookies: new Set(), mimeTypes: new Set() };
+  const harJSON = JSON.parse(input);
+
+  const entries = harJSON.log.entries;
+  if (!entries) {
+    throw new Error("failed to find entries in HAR file");
+  }
+
+  for (const entry of entries) {
+    const response = entry.response;
+    response.headers.map((header: any) => output.headers.add(header.name));
+    response.cookies.map((cookie: any) => output.cookies.add(cookie.name));
+    output.mimeTypes.add(response.content.mimeType);
+
+    const request = entry.request;
+    request.headers.map((header: any) => output.headers.add(header.name));
+    request.queryString.map((arg: any) => output.queryArgs.add(arg.name));
+    request.cookies.map((cookie: any) => output.cookies.add(cookie.name));
+  }
+
+  return {
+    headers: [...output.headers],
+    queryArgs: [...output.queryArgs],
+    cookies: [...output.cookies],
+    mimeTypes: [...output.mimeTypes],
+  };
 }
 
 export function sanitize(input: string) {
