@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import { useState } from "react";
 import { DownloadHar } from "./DownloadHar";
 import { Button } from "../_ui/Button";
@@ -10,7 +11,6 @@ type HARProps = {
 
 export const HAR: React.FC<HARProps> = ({ input = "", name = "" }) => {
   const [sanitizedHar, setSanitizedHar] = useState<string>("");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [harData, setHarData] = useState<any>({});
 
   const sanitizeHar = () => {
