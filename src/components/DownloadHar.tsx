@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "../_ui/Button";
 
 function handleDownloadClick(harOutput: string, name: string) {
   const blob = new Blob([harOutput], { type: "application/json" });
@@ -24,7 +25,10 @@ type DownloadHarProps = {
   har: string;
   name: string;
 };
-export const DownloadHar: React.FC<DownloadHarProps> = ({ har = "", name = "" }) => {
+export const DownloadHar: React.FC<DownloadHarProps> = ({
+  har = "",
+  name = "",
+}) => {
   const newName = `redacted_${name}`;
   let isValidJSON = true;
   let errMsg = "";
@@ -37,8 +41,12 @@ export const DownloadHar: React.FC<DownloadHarProps> = ({ har = "", name = "" })
   }
   return (
     <div>
-      {!isValidJSON && <p>there is something wrong with the sanitize har file {errMsg}</p>}
-      <button onClick={() => handleDownloadClick(har, newName)}>Download Sanitized HAR</button>
+      {!isValidJSON && (
+        <p>there is something wrong with the sanitize har file {errMsg}</p>
+      )}
+      <Button onClick={() => handleDownloadClick(har, newName)}>
+        Download Sanitized HAR
+      </Button>
     </div>
   );
 };
