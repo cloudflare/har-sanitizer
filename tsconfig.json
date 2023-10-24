@@ -18,8 +18,13 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "types": [
+      "@cloudflare/workers-types",
+      "vitest-environment-miniflare/globals"
+    ]
   },
-  "include": ["src"],
+  "include": ["src", "test", "functions"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
