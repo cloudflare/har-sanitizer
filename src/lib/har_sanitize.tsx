@@ -11,6 +11,7 @@ const defaultWordList = [
   "code_verifier",
   "client_secret",
   "client_id",
+  "code_challenge",
   "token",
   "access_token",
   "authenticity_token",
@@ -26,27 +27,38 @@ const defaultWordList = [
   "x-client-data",
   "SAMLRequest",
   "SAMLResponse",
-  "CF_Authorization",
   "vses2",
+];
+
+// The default list of regexes that aren't word dependent
+// Uses double list so it matches format of word regex
+const defaultRegex = [
+  [
+    // Redact signature on JWTs
+    {
+      regex: new RegExp(`\\b(ey[A-Za-z0-9-_=]+)\\.(ey[A-Za-z0-9-_=]+)\\.[A-Za-z0-9-_.+/=]+\\b`, "g"),
+      replacement: `$1.$2.redacted`,
+    },
+  ],
 ];
 
 function buildRegex(word: string) {
   return [
     {
-      // [full word]=[capture][& | ", | "\s | "} | ;]
+      // [full word]=[capture]
+      // {
+      //   "name": "[word]",
+      //   "value": "[capture]"
+      // }
       regex: new RegExp(`([\\s";,&?]+${word}=)([\\w+-_/=#|.%&:!*()\`~'"]+?)(&|\\\\",|",|"\\s|"}}|;){1}`, "g"),
       replacement: `$1[${word} redacted]$3`,
     },
-    // Set up this way in case "value" isn't directly after "name", but
-    // excludes {} to prevent grabbing the next object
+    // Set up this way in case "value" isn't directly after "name"
     // {
     //    "name": "[word]",
     //    "something": "not wanted",
-    //    "value": "[capture]["]
+    //    "value": "[capture]"
     // }
-    // {
-    //   "name": "not wanted",
-    //   "value": "unwanted capture"
     {
       regex: new RegExp(
         `("name": "${word}",[\\s\\w+:"-\\%!*()\`~'.#]*?"value": ")([\\w+-_:&\\+=#~/$()\\.\\,\\*\\!|%"\\s;]+?)("[\\s,}}]+){1}`,
@@ -54,13 +66,9 @@ function buildRegex(word: string) {
       ),
       replacement: `$1[${word} redacted]$3`,
     },
-    // Same as above, but backwards in case "name" comes after "value"
+    // "name" comes after "value"
     // {
-    //   "name": "not wanted/captured"
-    //   "value": "unwanted capture"
-    // }
-    // {
-    //    "value": "[capture]["],
+    //    "value": "[capture]",
     //    "something": "not wanted",
     //    "name": "[word]"
     // }
@@ -93,16 +101,19 @@ function removeContentForMimeTypes(input: string) {
 }
 
 export function sanitize(input: string) {
+  // Remove specific mime responses first
   input = removeContentForMimeTypes(input);
-  //   trim the list of words we are looking for down to the ones actually in the HAR file
-  const redactList = defaultWordList.filter((val) => input.includes(val));
+
+  // trim the list of words we are looking for down to the ones actually in the HAR file
+  const wordList = defaultWordList.filter((val) => input.includes(val));
 
   // build list of regexes needed to actually scrub the file
-  const scrubList = redactList.map((word) => buildRegex(word));
+  const wordSpecificScrubList = wordList.map((word) => buildRegex(word));
+  const allScrubList = defaultRegex.concat(wordSpecificScrubList);
 
-  for (const scrub of scrubList) {
-    for (const pattern of scrub) {
-      input = input.replace(pattern.regex, pattern.replacement);
+  for (const scrubList of allScrubList) {
+    for (const scrub of scrubList) {
+      input = input.replace(scrub.regex, scrub.replacement);
     }
   }
 
