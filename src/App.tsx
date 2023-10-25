@@ -1,52 +1,22 @@
-import { ChangeEvent, useState } from "react";
-import { HAR } from "./components/HAR";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
+import { Sanitizer } from "./components/Sanitizer";
+import { HARUpload, UploadHar } from "./components/UploadHar";
 
 function App() {
-  const [harName, setHarName] = useState<string>("");
-  const [har, setHar] = useState<string>("");
-  const [harError, setHarError] = useState<string>("");
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e || !e.target.files) {
-      return;
-    }
-    const selectedFile = e.target.files[0];
+	const [upload, setUpload] = useState<HARUpload>();
 
-    if (selectedFile) {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        try {
-          const fileContents = e?.target?.result;
-          if (
-            fileContents &&
-            (typeof fileContents === "string" || fileContents instanceof String)
-          ) {
-            JSON.parse(fileContents as string);
-            setHar(fileContents as string);
-            setHarName(selectedFile.name);
-            setHarError("");
-            return;
-          }
-          throw new Error("failed to upload file");
-        } catch (e) {
-          console.log(e);
-          setHarError(`invalid har file: ${e?.toString()}`);
-        }
-      };
-
-      reader.readAsText(selectedFile); // You can use 'readAsArrayBuffer' for binary files
-    }
-  };
-  return (
-    <>
-      <h1 className="text-5xl font-bold">Sanitize your HAR file</h1>
-      <div className="p-8">
-        <input type="file" onChange={handleFileChange} accept=".har" />
-        {harError && <p>{harError}</p>}
-      </div>
-      {!!har && <HAR input={har} name={harName}></HAR>}
-    </>
-  );
+	return (
+		<div className="flex flex-col justify-center place-items-start min-h-[100dvh] mx-auto max-w-7xl p-4 md:p-6 lg:p-8">
+			<div className="w-full space-y-6">
+				<h1 className="text-3xl font-bold">Sanitize your HAR file</h1>
+				<UploadHar setUpload={setUpload} />
+				{!!upload && (
+					<Sanitizer input={upload.raw} name={upload.name}></Sanitizer>
+				)}
+			</div>
+		</div>
+	);
 }
 
 export default App;
