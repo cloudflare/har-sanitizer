@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
+import { FileInput } from "../_ui/FileInput";
 
 export type HARUpload = {
 	raw: string;
@@ -14,12 +15,7 @@ type UploadHarProps = {
 export const UploadHar: React.FC<UploadHarProps> = ({ setUpload }) => {
 	const [harError, setHarError] = useState<string>("");
 
-	const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-		if (!e || !e.target.files) {
-			return;
-		}
-		const selectedFile = e.target.files[0];
-
+	const handleFileChange = (selectedFile: File) => {
 		if (selectedFile) {
 			const reader = new FileReader();
 
@@ -54,14 +50,13 @@ export const UploadHar: React.FC<UploadHarProps> = ({ setUpload }) => {
 			<label className="block" htmlFor="har-file">
 				HAR File
 			</label>
-			<input
+			<FileInput
 				className="block"
 				id="har-file"
-				type="file"
-				onChange={handleFileChange}
+				onFileChange={handleFileChange}
 				accept=".har"
 			/>
-			{harError && <p>{harError}</p>}
+			{harError && <p className="text-red-700 dark:text-red-500">{harError}</p>}
 		</div>
 	);
 };
