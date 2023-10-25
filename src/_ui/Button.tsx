@@ -7,8 +7,8 @@ export const Button = forwardRef<
 >(({ className, ...rest }, ref) => (
 	<button
 		className={cn(
-			"rounded-lg px-5 py-2 font-medium cursor-pointer text-stone-50 bg-stone-600 hover:bg-stone-800 ",
-			"dark:bg-stone-400 dark:hover:bg-stone-200 dark:text-stone-900 transition-colors focus-visible:outline-4",
+			"rounded-lg px-5 py-2 font-medium cursor-pointer text-neutral-50 bg-neutral-600 hover:bg-neutral-800 ",
+			"dark:bg-neutral-400 dark:hover:bg-neutral-200 dark:text-neutral-900 transition-colors focus-visible:outline-4",
 			className,
 		)}
 		{...rest}

@@ -97,7 +97,7 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 										<label className="inline-flex items-start gap-2 group">
 											<input
 												type="checkbox"
-												className="w-4 h-4 mt-1 group-hover:outline outline-offset-2 outline-2 shrink-0"
+												className="w-4 h-4 mt-[.38em] group-hover:outline outline-offset-2 outline-2 shrink-0"
 												name={item}
 												checked={checkboxes[key][index]}
 												onChange={() => handleCheckboxChange(key, index)}
