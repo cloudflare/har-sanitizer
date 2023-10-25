@@ -151,7 +151,6 @@ export function sanitize(
 	scrubWords?: string[],
 	scrubMimetypes?: string[],
 ) {
-	console.log(scrubWords);
 	// Remove specific mime responses first
 	input = removeContentForMimeTypes(
 		input,

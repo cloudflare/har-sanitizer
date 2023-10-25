@@ -16,7 +16,6 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 		item: string,
 		newVal: boolean,
 	) => {
-		console.log(type, item, newVal);
 		const newScrubItems = { ...scrubItems };
 		const newTypeItems = { ...newScrubItems[type] };
 		newTypeItems[item] = newVal;
