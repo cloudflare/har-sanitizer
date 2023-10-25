@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { FileInput } from "../_ui/FileInput";
+import { ErrorMessage } from "./ErrorMessage";
 
 export type HARUpload = {
 	raw: string;
@@ -47,7 +48,7 @@ export const UploadHar: React.FC<UploadHarProps> = ({ setUpload }) => {
 
 	return (
 		<div className="space-y-2">
-			<label className="block" htmlFor="har-file">
+			<label className="block font-medium" htmlFor="har-file">
 				HAR File
 			</label>
 			<FileInput
@@ -56,7 +57,7 @@ export const UploadHar: React.FC<UploadHarProps> = ({ setUpload }) => {
 				onFileChange={handleFileChange}
 				accept=".har"
 			/>
-			{harError && <p className="text-red-700 dark:text-red-500">{harError}</p>}
+			{harError && <ErrorMessage>{harError}</ErrorMessage>}
 		</div>
 	);
 };

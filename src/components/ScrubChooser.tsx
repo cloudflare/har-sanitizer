@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { P } from "../_ui/P";
 import { ScrubState, ScrubType } from "./Sanitizer";
 
 type ScrubChooserProps = {
@@ -33,7 +32,6 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 
 	return (
 		<div className="space-y-8">
-			<P>Select which elements you would like sanitized from the HAR file:</P>
 			{Object.entries(scrubItems).map(
 				// @ts-ignore
 				([key, items]: [ScrubType, Record<string, boolean>], typeIndex) => {
@@ -42,7 +40,7 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 						<>
 							{typeIndex > 0 && <hr />}
 							<div className="space-y-2">
-								<h2>{typeMap[key]}</h2>
+								<h2 className="font-medium">{typeMap[key]}</h2>
 								<ul
 									className="space-y-1 columns-1 md:columns-2 lg:columns-3 xl:columns-4"
 									key={key}
