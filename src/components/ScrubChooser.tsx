@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PossibleScrubItems, defaultScrubItems } from "../lib/har_sanitize";
 import { ScrubItems } from "./Sanitizer";
 
@@ -24,11 +24,30 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 	scrubItems,
 	setScrubItems,
 }) => {
-	const [checkboxes, setCheckboxes] = useState<CheckboxState>({
-		cookies: new Array(items.cookies.length).fill(false),
-		headers: new Array(items.headers.length).fill(false),
-		queryArgs: new Array(items.queryArgs.length).fill(false),
-		mimeTypes: new Array(items.mimeTypes.length).fill(false),
+	const [checkboxes, setCheckboxes] = useState<CheckboxState>(() => {
+		const newCheckboxes = {
+			cookies: new Array(items.cookies.length).fill(false),
+			headers: new Array(items.headers.length).fill(false),
+			queryArgs: new Array(items.queryArgs.length).fill(false),
+			mimeTypes: new Array(items.mimeTypes.length).fill(false),
+		};
+		const newScrubWords = new Set<string>();
+		const newScrubMimeTypes = new Set<string>();
+		for (const item of defaultScrubItems) {
+			Object.entries(items).forEach(([key, val]) => {
+				const index = val.indexOf(item);
+				if (index >= 0) {
+					//   update the value and add to scrub items
+					//   @ts-ignore
+					newCheckboxes[key][index] = true;
+					key == "mimeTypes"
+						? newScrubMimeTypes.add(item)
+						: newScrubWords.add(item);
+				}
+			});
+		}
+		setScrubItems({ words: newScrubWords, mimeTypes: newScrubMimeTypes });
+		return newCheckboxes;
 	});
 
 	const handleCheckboxChange = (type: CheckboxType, index: number) => {
@@ -59,28 +78,6 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 		newCheckboxes[type] = newValues;
 		setCheckboxes(newCheckboxes);
 	};
-
-	useEffect(() => {
-		const newCheckboxes = { ...checkboxes };
-		const newScrubWords = new Set<string>();
-		const newScrubMimeTypes = new Set<string>();
-		for (const item of defaultScrubItems) {
-			Object.entries(items).forEach(([key, val]) => {
-				const index = val.indexOf(item);
-				if (index >= 0) {
-					//   update the value and add to scrub items
-					//   @ts-ignore
-					checkboxes[key][index] = true;
-					key == "mimeTypes"
-						? newScrubMimeTypes.add(item)
-						: newScrubWords.add(item);
-				}
-			});
-		}
-		setScrubItems({ words: newScrubWords, mimeTypes: newScrubMimeTypes });
-		setCheckboxes(newCheckboxes);
-		// todo: figure out why typescript doesn't like this
-	}, [items]);
 
 	return (
 		<div className="space-y-4">
