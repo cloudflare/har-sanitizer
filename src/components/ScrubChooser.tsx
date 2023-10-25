@@ -41,16 +41,16 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 							{typeIndex > 0 && (
 								<hr className="border-neutral-200 dark:border-neutral-700" />
 							)}
-							<div className="space-y-2">
-								<h2 className="font-medium">{typeMap[key]}</h2>
-								<ul
+							<fieldset className="space-y-2">
+								<legend className="font-medium">{typeMap[key]}</legend>
+								<div
 									className="space-y-1 columns-1 md:columns-2 lg:columns-3 xl:columns-4"
 									key={key}
 								>
 									{Object.entries(items).map(
 										([item, val]: [string, boolean]) => {
 											return (
-												<li className="inline-block w-full" key={item}>
+												<div className="inline-block w-full" key={item}>
 													<label className="inline-grid gap-2 grid-cols-[auto_minmax(0,1fr)] hover:dark:bg-neutral-800 hover:bg-neutral-100 px-2 rounded-md">
 														<input
 															type="checkbox"
@@ -63,12 +63,12 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 														/>
 														<span className="break-all break-word">{item}</span>
 													</label>
-												</li>
+												</div>
 											);
 										},
 									)}
-								</ul>
-							</div>
+								</div>
+							</fieldset>
 						</>
 					);
 				},
