@@ -37,15 +37,7 @@ export const Sanitizer: React.FC<SanitizerProps> = ({
 	}, [input]);
 
 	return (
-		<div className="flex gap-4">
-			<div>
-				{input ? (
-					<Button onClick={sanitizeHar}>Sanitize</Button>
-				) : (
-					<p>no har</p>
-				)}
-			</div>
-			{sanitizedHar && <DownloadHar har={sanitizedHar} name={name} />}
+		<>
 			{possibleScrubItems && (
 				<ScrubChooser
 					items={possibleScrubItems}
@@ -53,6 +45,10 @@ export const Sanitizer: React.FC<SanitizerProps> = ({
 					setScrubItems={setScrubItems}
 				></ScrubChooser>
 			)}
-		</div>
+			<div>
+				<Button onClick={sanitizeHar}>Sanitize</Button>
+			</div>
+			{sanitizedHar && <DownloadHar har={sanitizedHar} name={name} />}
+		</>
 	);
 };

@@ -50,8 +50,17 @@ export const UploadHar: React.FC<UploadHarProps> = ({ setUpload }) => {
 	};
 
 	return (
-		<div className="p-8">
-			<input type="file" onChange={handleFileChange} accept=".har" />
+		<div className="space-y-2">
+			<label className="block" htmlFor="har-file">
+				HAR File
+			</label>
+			<input
+				className="block"
+				id="har-file"
+				type="file"
+				onChange={handleFileChange}
+				accept=".har"
+			/>
 			{harError && <p>{harError}</p>}
 		</div>
 	);

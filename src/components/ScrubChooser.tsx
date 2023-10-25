@@ -83,28 +83,35 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 	}, [items]);
 
 	return (
-		<div className="flex flex-fow">
+		<div className="space-y-4">
 			{/* @ts-ignore */}
 			{Object.entries(items).map(([key, val]: [CheckboxType, string[]]) => {
+				if (val.length === 0) return null;
 				return (
-					<ul className="space-y-2" key={key}>
-						{val.map((item, index) => {
-							return (
-								<li key={item}>
-									<label className="inline-flex items-center">
-										<input
-											type="checkbox"
-											className="form-checkbox h-5 w-5 text-blue-600"
-											name={item}
-											checked={checkboxes[key][index]}
-											onChange={() => handleCheckboxChange(key, index)}
-										/>
-										<span className="ml-2">{item}</span>
-									</label>
-								</li>
-							);
-						})}
-					</ul>
+					<div className="space-y-2">
+						<h2>{key}</h2>
+						<ul
+							className="space-y-1 columns-1 md:columns-2 lg:columns-3 xl:columns-4"
+							key={key}
+						>
+							{val.map((item, index) => {
+								return (
+									<li className="inline-block w-full" key={item}>
+										<label className="inline-flex items-start gap-2 group">
+											<input
+												type="checkbox"
+												className="w-4 h-4 mt-1 group-hover:outline outline-offset-2 outline-2 shrink-0"
+												name={item}
+												checked={checkboxes[key][index]}
+												onChange={() => handleCheckboxChange(key, index)}
+											/>
+											<span>{item}</span>
+										</label>
+									</li>
+								);
+							})}
+						</ul>
+					</div>
 				);
 			})}
 		</div>
