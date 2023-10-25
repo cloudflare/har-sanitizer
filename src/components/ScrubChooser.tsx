@@ -38,7 +38,9 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 					if (Object.keys(items).length === 0) return null;
 					return (
 						<>
-							{typeIndex > 0 && <hr />}
+							{typeIndex > 0 && (
+								<hr className="border-neutral-200 dark:border-neutral-700" />
+							)}
 							<div className="space-y-2">
 								<h2 className="font-medium">{typeMap[key]}</h2>
 								<ul
