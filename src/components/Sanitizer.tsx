@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "../_ui/Button";
-import { PossibleScrubItems, getHarInfo, sanitize } from "../lib/har_sanitize";
+import { defaultScrubItems, getHarInfo, sanitize } from "../lib/har_sanitize";
 import { DownloadHar } from "./DownloadHar";
 import { ScrubChooser } from "./ScrubChooser";
 
@@ -14,33 +14,65 @@ export type ScrubItems = {
 	mimeTypes: Set<string>;
 };
 
+const defaulScrubState: ScrubState = {
+	cookies: {},
+	headers: {},
+	queryArgs: {},
+	mimeTypes: {},
+};
+
+export type ScrubState = Record<ScrubType, Record<string, boolean>>;
+export type ScrubType = "cookies" | "headers" | "queryArgs" | "mimeTypes";
+
+function getScrubableItems(input: string): ScrubState {
+	const rawItems = getHarInfo(input);
+	const output = { ...defaulScrubState };
+	Object.entries(rawItems).map(([key, items]: [string, string[]]) => {
+		output[key as ScrubType] = items.reduce(
+			(acc, curr) => {
+				acc[curr] = defaultScrubItems.includes(curr);
+				return acc;
+			},
+			{} as Record<string, boolean>,
+		);
+	});
+	return output;
+}
+
 export const Sanitizer: React.FC<SanitizerProps> = ({
 	input = "",
 	name = "",
 }) => {
 	const [sanitizedHar, setSanitizedHar] = useState<string>("");
-	const [possibleScrubItems, setPossibleScrubItems] =
-		useState<PossibleScrubItems>();
-	const [scrubItems, setScrubItems] = useState<ScrubItems>({
-		words: new Set(),
-		mimeTypes: new Set(),
-	});
+	const [scrubItems, setScrubItems] = useState<ScrubState>(defaulScrubState);
 
 	const sanitizeHar = () => {
-		setSanitizedHar(
-			sanitize(input, [...scrubItems.words], [...scrubItems.mimeTypes]),
-		);
+		const words = new Set<string>();
+		Object.entries(scrubItems.cookies).map(([key, val]) => {
+			if (val) words.add(key);
+		});
+		Object.entries(scrubItems.headers).map(([key, val]) => {
+			if (val) words.add(key);
+		});
+		Object.entries(scrubItems.queryArgs).map(([key, val]) => {
+			if (val) words.add(key);
+		});
+
+		const mimeTypes = new Set<string>();
+		Object.entries(scrubItems.mimeTypes).map(([key, val]) => {
+			if (val) mimeTypes.add(key);
+		});
+		setSanitizedHar(sanitize(input, [...words], [...mimeTypes]));
 	};
 
 	useEffect(() => {
-		setPossibleScrubItems(getHarInfo(input));
+		setScrubItems(getScrubableItems(input));
 	}, [input]);
 
 	return (
 		<>
-			{possibleScrubItems && (
+			{scrubItems && (
 				<ScrubChooser
-					items={possibleScrubItems}
 					scrubItems={scrubItems}
 					setScrubItems={setScrubItems}
 				></ScrubChooser>
