@@ -52,7 +52,7 @@ export const UploadHar: React.FC<UploadHarProps> = ({ setUpload }) => {
 				HAR File
 			</label>
 			<FileInput
-				className="block"
+				className="block whitespace-nowrap"
 				id="har-file"
 				onFileChange={handleFileChange}
 				accept=".har"

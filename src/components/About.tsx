@@ -5,7 +5,7 @@ export function About() {
 	return (
 		<div className="grid grid-cols-1 gap-8 md:grid-cols-2">
 			<div className="space-y-1 text-sm">
-				<h2 className="font-bold">Recommendation</h2>
+				<h2 className="font-bold">How it works</h2>
 				<P className="max-w-prose">
 					At Cloudflare, we're committed to building a better Internet. We want
 					to make it possible to troubleshoot with HAR files without the threat
