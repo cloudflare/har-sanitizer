@@ -75,12 +75,12 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 												handleAllCheckboxChange(key, e.target.checked);
 											}}
 										/>
-										<span className="font-medium">All {typeMap[key]}</span>
+										<span className="font-semibold">All {typeMap[key]}</span>
 									</label>
 								</div>
 
 								<div
-									className="space-y-1 columns-1 md:columns-2 lg:columns-3 xl:columns-4"
+									className="space-y-1 columns-1 lg:columns-2 xl:columns-3"
 									key={key}
 								>
 									{Object.entries(items).map(
@@ -90,7 +90,7 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 													<label className="inline-grid gap-2 grid-cols-[auto_minmax(0,1fr)] hover:dark:bg-neutral-800 hover:bg-neutral-100 px-2 rounded-md">
 														<input
 															type="checkbox"
-															className="w-4 h-4 mt-[.38em] shrink-0"
+															className="w-4 h-4 mt-[.20em] shrink-0"
 															name={item}
 															checked={val}
 															onChange={() => {
@@ -110,7 +110,9 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 																}
 															}}
 														/>
-														<span className="break-all break-word">{item}</span>
+														<code className="font-mono text-sm leading-relaxed break-all break-word">
+															{item}
+														</code>
 													</label>
 												</div>
 											);

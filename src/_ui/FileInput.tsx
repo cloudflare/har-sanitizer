@@ -60,7 +60,7 @@ export const FileInput = forwardRef<
 					}
 				}}
 				className={cn(
-					"rounded-2xl p-4 cursor-pointer transition-colors",
+					"rounded-2xl p-4 cursor-pointer transition-colors max-w-full",
 					"bg-neutral-200 hover:bg-neutral-300",
 					"dark:bg-neutral-700 dark:hover:bg-neutral-600",
 					isDragging && "bg-neutral-300",

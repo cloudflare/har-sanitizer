@@ -3,10 +3,10 @@ import { P } from "../_ui/P";
 
 export function About() {
 	return (
-		<div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-			<div className="space-y-1 text-sm">
+		<div className="grid grid-cols-1 gap-8 xl:gap-16 lg:grid-cols-2">
+			<div className="space-y-1">
 				<h2 className="font-bold">How it works</h2>
-				<P className="max-w-prose">
+				<P className="text-sm max-w-prose">
 					At Cloudflare, we're committed to building a better Internet. We want
 					to make it possible to troubleshoot with HAR files without the threat
 					of a stolen session. The HAR File Sanitzer will remove sensitive data
@@ -27,9 +27,9 @@ export function About() {
 					.
 				</P>
 			</div>
-			<div className="space-y-1 text-sm">
+			<div className="space-y-1">
 				<h2 className="font-bold">More about HTTP Archive (HAR) files</h2>
-				<P className="max-w-prose">
+				<P className="text-sm max-w-prose">
 					HAR files are JSON-formatted archive files used to log web browser
 					interactions. Developers and IT professionals often use the
 					performance data in HAR files to troubleshoot issues. Since HAR files
