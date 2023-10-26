@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { ElementRef, useRef } from "react";
 import { ScrubState, ScrubType } from "./Sanitizer";
 
 type ScrubChooserProps = {
@@ -19,22 +20,19 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 	scrubItems,
 	setScrubItems,
 }) => {
-	const [allSelected, setAllSelected] = useState<Record<ScrubType, boolean>>({
-		cookies: false,
-		headers: false,
-		queryArgs: false,
-		mimeTypes: false,
-	});
-
 	const handleCheckboxChange = (
 		type: ScrubType,
 		item: string,
 		newVal: boolean,
+		selectAllInput: HTMLInputElement,
 	) => {
 		const newScrubItems = { ...scrubItems };
 		const newTypeItems = { ...newScrubItems[type] };
 		newTypeItems[item] = newVal;
 		newScrubItems[type] = newTypeItems;
+		const values = Object.values(newTypeItems);
+		selectAllInput.indeterminate =
+			!values.every((v) => v === true) && values.some((v) => v === true);
 		setScrubItems(newScrubItems);
 	};
 
@@ -44,37 +42,43 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 		Object.keys(newTypeItems).map((item) => (newTypeItems[item] = newVal));
 		newScrubItems[type] = newTypeItems;
 		setScrubItems(newScrubItems);
-
-		const newAllSelected = { ...allSelected };
-		newAllSelected[type] = newVal;
-		setAllSelected(newAllSelected);
 	};
 
+	const ref = useRef<ElementRef<"div">>(null);
+
 	return (
-		<div className="space-y-8">
+		<div className="space-y-8" ref={ref}>
 			{Object.entries(scrubItems).map(
 				// @ts-ignore
 				([key, items]: [ScrubType, Record<string, boolean>], typeIndex) => {
-					if (Object.keys(items).length === 0) return null;
+					const itemKeys = Object.keys(items);
+					if (itemKeys.length === 0) return null;
+					const selectAllInputId = `select-all-${key}`;
 					return (
 						<>
 							{typeIndex > 0 && (
 								<hr className="border-neutral-200 dark:border-neutral-700" />
 							)}
 							<fieldset className="space-y-2">
-								<legend className="font-medium">{typeMap[key]}</legend>
-								<label className="inline-grid gap-2 grid-cols-[auto_minmax(0,1fr)] hover:dark:bg-neutral-800 hover:bg-neutral-100 px-2 rounded-md">
-									<input
-										type="checkbox"
-										className="w-4 h-4 mt-[.38em] group-hover:outline outline-offset-2 outline-2 shrink-0"
-										name={`all-${key}`}
-										checked={allSelected[key]}
-										onChange={() =>
-											handleAllCheckboxChange(key, !allSelected[key])
-										}
-									/>
-									<span>Select all {typeMap[key]}</span>
-								</label>
+								<VisuallyHidden>
+									<legend>{typeMap[key]}</legend>
+								</VisuallyHidden>
+								<div className="flex gap-2">
+									<label className="inline-grid gap-2 grid-cols-[auto_minmax(0,1fr)] hover:dark:bg-neutral-800 hover:bg-neutral-100 px-2 rounded-md">
+										<input
+											type="checkbox"
+											className="w-4 h-4 mt-[.38em] group-hover:outline outline-offset-2 outline-2 shrink-0"
+											name={`all-${key}`}
+											checked={itemKeys.every((k) => items[k])}
+											id={selectAllInputId}
+											onChange={(e) => {
+												handleAllCheckboxChange(key, e.target.checked);
+											}}
+										/>
+										<span className="font-medium">All {typeMap[key]}</span>
+									</label>
+								</div>
+
 								<div
 									className="space-y-1 columns-1 md:columns-2 lg:columns-3 xl:columns-4"
 									key={key}
@@ -89,9 +93,22 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 															className="w-4 h-4 mt-[.38em] shrink-0"
 															name={item}
 															checked={val}
-															onChange={() =>
-																handleCheckboxChange(key, item, !val)
-															}
+															onChange={() => {
+																const selectAllInput =
+																	ref.current?.querySelector(
+																		`#${selectAllInputId}`,
+																	);
+																if (
+																	selectAllInput instanceof HTMLInputElement
+																) {
+																	handleCheckboxChange(
+																		key,
+																		item,
+																		!val,
+																		selectAllInput,
+																	);
+																}
+															}}
 														/>
 														<span className="break-all break-word">{item}</span>
 													</label>
