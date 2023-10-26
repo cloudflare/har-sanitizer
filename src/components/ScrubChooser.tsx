@@ -110,9 +110,9 @@ export const ScrubChooser: React.FC<ScrubChooserProps> = ({
 																}
 															}}
 														/>
-														<span className="font-mono text-sm leading-relaxed break-all break-word">
+														<code className="font-mono text-sm leading-relaxed break-all break-word">
 															{item}
-														</span>
+														</code>
 													</label>
 												</div>
 											);
