@@ -67,13 +67,11 @@ export const Sanitizer = () => {
 	}, [upload?.raw]);
 
 	return (
-		<>
-			<div className="flex flex-wrap items-end justify-between gap-8">
-				<UploadHar setUpload={setUpload} />
-			</div>
+		<div className="space-y-8">
+			<UploadHar setUpload={setUpload} />
 			{scrubItems && upload && (
 				<>
-					<div className="flex flex-wrap-reverse items-start justify-between gap-8">
+					<div className="flex flex-wrap-reverse items-baseline justify-between gap-8">
 						<P>
 							Select which elements you would like sanitized from the HAR file:
 						</P>
@@ -102,6 +100,6 @@ export const Sanitizer = () => {
 					></ScrubChooser>
 				</>
 			)}
-		</>
+		</div>
 	);
 };
