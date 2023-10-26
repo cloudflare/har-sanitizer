@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// const mimeTypes = ["application/javascript", "text/javascript", "text/html", "text/css", "text/xml"];
 export type PossibleScrubItems = {
 	headers: string[];
 	cookies: string[];
@@ -10,32 +9,32 @@ export type PossibleScrubItems = {
 const defaultMimeTypesList = ["application/javascript", "text/javascript"];
 
 const defaultWordList = [
-	"state",
-	"shdf",
-	"usg",
-	"password",
-	"email",
-	"code",
-	"code_verifier",
-	"client_secret",
-	"client_id",
-	"code_challenge",
-	"token",
-	"access_token",
-	"authenticity_token",
-	"id_token",
-	"appID",
-	"challenge",
-	"facetID",
-	"assertion",
-	"fcParams",
-	"serverData",
 	"Authorization",
-	"auth",
-	"x-client-data",
 	"SAMLRequest",
 	"SAMLResponse",
+	"access_token",
+	"appID",
+	"assertion",
+	"auth",
+	"authenticity_token",
+	"challenge",
+	"client_id",
+	"client_secret",
+	"code",
+	"code_challenge",
+	"code_verifier",
+	"email",
+	"facetID",
+	"fcParams",
+	"id_token",
+	"password",
+	"serverData",
+	"shdf",
+	"state",
+	"token",
+	"usg",
 	"vses2",
+	"x-client-data",
 ];
 
 export const defaultScrubItems = [...defaultMimeTypesList, ...defaultWordList];
@@ -146,19 +145,64 @@ export function getHarInfo(input: string): PossibleScrubItems {
 	};
 }
 
-export function sanitize(
-	input: string,
-	scrubWords?: string[],
-	scrubMimetypes?: string[],
+function getScrubMimeTypes(
+	options?: SanitizeOptions,
+	possibleScrubItems?: PossibleScrubItems,
 ) {
+	if (options?.allMimeTypes && !!possibleScrubItems) {
+		return possibleScrubItems.mimeTypes;
+	}
+	return options?.scrubMimetypes || defaultMimeTypesList;
+}
+
+function getScrubWords(
+	options?: SanitizeOptions,
+	possibleScrubItems?: PossibleScrubItems,
+) {
+	let scrubWords = options?.scrubWords || [];
+	if (options?.allCookies && !!possibleScrubItems) {
+		scrubWords = scrubWords.concat(possibleScrubItems.cookies);
+	}
+	if (options?.allHeaders && !!possibleScrubItems) {
+		scrubWords = scrubWords.concat(possibleScrubItems.headers);
+	}
+	if (options?.allQueryArgs && !!possibleScrubItems) {
+		scrubWords = scrubWords.concat(possibleScrubItems.queryArgs);
+	}
+
+	return scrubWords || defaultScrubItems;
+}
+
+type SanitizeOptions = {
+	scrubWords?: string[];
+	scrubMimetypes?: string[];
+	allCookies?: boolean;
+	allHeaders?: boolean;
+	allQueryArgs?: boolean;
+	allMimeTypes?: boolean;
+};
+
+export function sanitize(input: string, options?: SanitizeOptions) {
+	console.log("options", JSON.stringify(options, null, 2));
+	let possibleScrubItems: PossibleScrubItems | undefined;
+	if (
+		options?.allCookies ||
+		options?.allHeaders ||
+		options?.allMimeTypes ||
+		options?.allQueryArgs
+	) {
+		// we have to parse the HAR to get the full list of things we could scrub
+		possibleScrubItems = getHarInfo(input);
+	}
+
 	// Remove specific mime responses first
 	input = removeContentForMimeTypes(
 		input,
-		scrubMimetypes || defaultMimeTypesList,
+		getScrubMimeTypes(options, possibleScrubItems),
 	);
 
 	// trim the list of words we are looking for down to the ones actually in the HAR file
-	const wordList = (scrubWords || defaultScrubItems).filter((val) =>
+	const wordList = getScrubWords(options, possibleScrubItems).filter((val) =>
 		input.includes(val),
 	);
 
