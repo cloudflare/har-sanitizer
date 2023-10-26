@@ -59,7 +59,10 @@ export const Sanitizer = () => {
 		Object.entries(scrubItems.mimeTypes).map(([key, val]) => {
 			if (val) mimeTypes.add(key);
 		});
-		return sanitize(input, [...words], [...mimeTypes]);
+		return sanitize(input, {
+			scrubWords: [...words],
+			scrubMimetypes: [...mimeTypes],
+		});
 	};
 
 	useEffect(() => {
