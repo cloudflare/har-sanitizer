@@ -9,7 +9,7 @@ export function About() {
 				<P className="text-sm max-w-prose">
 					At Cloudflare, we're committed to building a better Internet. We want
 					to make it possible to troubleshoot with HAR files without the threat
-					of a stolen session. The HAR File Sanitzer will remove sensitive data
+					of a stolen session. The HAR File Sanitizer will remove sensitive data
 					using “clientside” logic. Meaning that no one—including Cloudflare—
 					will ever see the content from your HAR files. This makes it safe to
 					send to another support, engineering, or external team. For some
