@@ -24,6 +24,7 @@
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20231016.0",
+		"@types/har-format": "^1.2.14",
 		"@types/react": "^18.2.15",
 		"@types/react-dom": "^18.2.7",
 		"@typescript-eslint/eslint-plugin": "^6.0.0",

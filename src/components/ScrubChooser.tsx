@@ -13,6 +13,7 @@ const typeMap: Record<ScrubType, string> = {
 	cookies: "Cookies",
 	mimeTypes: "Mime Types",
 	headers: "Headers",
+	postParams: "Post Body Params",
 	queryArgs: "Query String Parameters",
 };
 

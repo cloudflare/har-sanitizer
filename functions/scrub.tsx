@@ -10,6 +10,7 @@ type ScrubRequest = {
 	all_cookies?: boolean;
 	all_mimetypes?: boolean;
 	all_queryargs?: boolean;
+	all_postparams?: boolean;
 };
 
 export const onRequest: PagesFunction<Env> = async (ctx) => {
@@ -43,6 +44,7 @@ export const onRequest: PagesFunction<Env> = async (ctx) => {
 			allHeaders: body.all_headers,
 			allMimeTypes: body.all_mimetypes,
 			allQueryArgs: body.all_queryargs,
+			allPostParams: body.all_postparams,
 		});
 
 		return new Response(JSON.stringify(JSON.parse(scrubbed), null, 2));
