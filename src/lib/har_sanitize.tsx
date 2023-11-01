@@ -1,8 +1,11 @@
+import { Cookie, Har, Header, Param, QueryString } from "har-format";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type PossibleScrubItems = {
 	headers: string[];
 	cookies: string[];
 	queryArgs: string[];
+	postParams: string[];
 	mimeTypes: string[];
 };
 
@@ -116,9 +119,10 @@ export function getHarInfo(input: string): PossibleScrubItems {
 		headers: new Set<string>(),
 		queryArgs: new Set<string>(),
 		cookies: new Set<string>(),
+		postParams: new Set<string>(),
 		mimeTypes: new Set<string>(),
 	};
-	const harJSON = JSON.parse(input);
+	const harJSON: Har = JSON.parse(input);
 
 	const entries = harJSON.log.entries;
 	if (!entries) {
@@ -127,20 +131,28 @@ export function getHarInfo(input: string): PossibleScrubItems {
 
 	for (const entry of entries) {
 		const response = entry.response;
-		response.headers.map((header: any) => output.headers.add(header.name));
-		response.cookies.map((cookie: any) => output.cookies.add(cookie.name));
+		response.headers.map((header: Header) => output.headers.add(header.name));
+		response.cookies.map((cookie: Cookie) => output.cookies.add(cookie.name));
 		output.mimeTypes.add(response.content.mimeType);
 
 		const request = entry.request;
-		request.headers.map((header: any) => output.headers.add(header.name));
-		request.queryString.map((arg: any) => output.queryArgs.add(arg.name));
-		request.cookies.map((cookie: any) => output.cookies.add(cookie.name));
+		request.headers.map((header: Header) => output.headers.add(header.name));
+		request.queryString.map((arg: QueryString) =>
+			output.queryArgs.add(arg.name),
+		);
+		request.cookies.map((cookie: Cookie) => output.cookies.add(cookie.name));
+		if (request.postData) {
+			request.postData.params?.map((param: Param) =>
+				output.postParams.add(param.name),
+			);
+		}
 	}
 
 	return {
 		headers: [...output.headers].sort(),
 		queryArgs: [...output.queryArgs].sort(),
 		cookies: [...output.cookies].sort(),
+		postParams: [...output.postParams].sort(),
 		mimeTypes: [...output.mimeTypes].sort(),
 	};
 }
@@ -169,6 +181,9 @@ function getScrubWords(
 	if (options?.allQueryArgs && !!possibleScrubItems) {
 		scrubWords = scrubWords.concat(possibleScrubItems.queryArgs);
 	}
+	if (options?.allPostParams && !!possibleScrubItems) {
+		scrubWords = scrubWords.concat(possibleScrubItems.postParams);
+	}
 
 	return scrubWords || defaultScrubItems;
 }
@@ -180,6 +195,7 @@ type SanitizeOptions = {
 	allHeaders?: boolean;
 	allQueryArgs?: boolean;
 	allMimeTypes?: boolean;
+	allPostParams?: boolean;
 };
 
 export function sanitize(input: string, options?: SanitizeOptions) {
@@ -189,7 +205,8 @@ export function sanitize(input: string, options?: SanitizeOptions) {
 		options?.allCookies ||
 		options?.allHeaders ||
 		options?.allMimeTypes ||
-		options?.allQueryArgs
+		options?.allQueryArgs ||
+		options?.allPostParams
 	) {
 		// we have to parse the HAR to get the full list of things we could scrub
 		possibleScrubItems = getHarInfo(input);

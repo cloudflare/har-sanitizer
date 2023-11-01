@@ -17,11 +17,17 @@ const defaulScrubState: ScrubState = {
 	cookies: {},
 	headers: {},
 	queryArgs: {},
+	postParams: {},
 	mimeTypes: {},
 };
 
 export type ScrubState = Record<ScrubType, Record<string, boolean>>;
-export type ScrubType = "cookies" | "headers" | "queryArgs" | "mimeTypes";
+export type ScrubType =
+	| "cookies"
+	| "headers"
+	| "queryArgs"
+	| "postParams"
+	| "mimeTypes";
 
 function getScrubableItems(input: string): ScrubState {
 	const rawItems = getHarInfo(input);
@@ -29,6 +35,7 @@ function getScrubableItems(input: string): ScrubState {
 	Object.entries(rawItems).map(([key, items]: [string, string[]]) => {
 		output[key as ScrubType] = items.reduce(
 			(acc, curr) => {
+				if (!curr) return acc;
 				acc[curr] = defaultScrubItems.includes(curr);
 				return acc;
 			},
@@ -52,6 +59,9 @@ export const Sanitizer = () => {
 			if (val) words.add(key);
 		});
 		Object.entries(scrubItems.queryArgs).map(([key, val]) => {
+			if (val) words.add(key);
+		});
+		Object.entries(scrubItems.postParams).map(([key, val]) => {
 			if (val) words.add(key);
 		});
 
