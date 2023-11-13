@@ -31,6 +31,7 @@ const defaultWordList = [
 	"fcParams",
 	"id_token",
 	"password",
+	"refresh_token",
 	"serverData",
 	"shdf",
 	"state",
