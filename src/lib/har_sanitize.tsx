@@ -62,7 +62,7 @@ function buildRegex(word: string) {
 		{
 			// [full word]=[capture]
 			regex: new RegExp(
-				`([\\s";,&?]+${word}=)([\\w+-_/=#|.%&:!*()\`~'"]+?)(&|\\\\",|",|"\\s|"}}|;){1}`,
+				`([\\s";,&?]+${word}=)([\\w+-_/=#|.%&:!*()\`~'"]*?)(&|\\\\",|",|"\\s|"}}|;|\\\\"){1}`,
 				"g",
 			),
 			replacement: `$1[${word} redacted]$3`,
@@ -75,7 +75,7 @@ function buildRegex(word: string) {
 		// }
 		{
 			regex: new RegExp(
-				`("name": "${word}",[\\s\\w+:"-\\%!*()\`~'.,#]*?"value": ")([\\w+-_:&\\+=#~/$()\\.\\,\\*\\!|%"'\\s;{}]+?)("[\\s]+){1}`,
+				`("name": "${word}",[\\s\\w+:"-\\%!*()\`~'.,#]*?"value": ")([\\w+-_:&\\+=#~/$()\\.\\,\\*\\!|%"'\\s;{}]*?)("[\\s]*){1}`,
 				"g",
 			),
 			replacement: `$1[${word} redacted]$3`,
@@ -185,7 +185,11 @@ function getScrubWords(
 		scrubWords = scrubWords.concat(possibleScrubItems.postParams);
 	}
 
-	return scrubWords || defaultScrubItems;
+	if (scrubWords.length === 0) {
+		return defaultScrubItems;
+	}
+
+	return scrubWords;
 }
 
 type SanitizeOptions = {
