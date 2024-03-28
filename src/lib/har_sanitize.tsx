@@ -76,7 +76,7 @@ function buildRegex(word: string) {
 		// }
 		{
 			regex: new RegExp(
-				`("name": "${word}",[\\s\\w+:"-\\%!*()\`~'.,#]*?"value": ")([\\w+-_:&\\+=#~/$()\\.\\,\\*\\!|%"'\\s;{}]+?)("[\\s]+){1}`,
+				`("name": "${word}",[\\s\\w+:"-\\%!*()\`~'.,#]*?"value": ")((?:\\\\"|[^"])*?)(")`,
 				"g",
 			),
 			replacement: `$1[${word} redacted]$3`,
